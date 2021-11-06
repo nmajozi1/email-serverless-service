@@ -1,0 +1,48 @@
+service: email-serverless
+# app and org for use with dashboard.serverless.com
+app: email
+org: ntokozomajozi5
+frameworkVersion: '2'
+useDotenv: true
+
+plugins:
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  region: eu-west-1
+  lambdaHashingVersion: 20201221
+  iam: {
+    role: {
+      statements: [
+        {
+          "Effect": "Allow",
+          "Action": [
+            "lambda:InvokeFunction"
+          ],
+          "Resource": "*"
+        }
+      ]
+    }
+  }
+
+functions:
+  send:
+    handler: dist/send.send
+    events:
+      - http:
+          path: email/send
+          method: post
+          cors: true
+  test:
+    handler: dist/test.test
+    environment:
+      SENDGRID_API_KEY: ${param:API_KEY}
+      TO_EMAIL: ${param:TO_EMAIL}
+      FROM_EMAIL: ${param:FROM_EMAIL}
+    events:
+      - http:
+          path: tests/test
+          method: get
+          cors: true
